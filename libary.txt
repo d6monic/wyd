@@ -4310,101 +4310,20 @@ function colorpickers:set(color)
 	end
 end
 --
-function sections:configloader(options)
-    local folder = options.folder or "EmpressIII"
-    if not isfolder(folder) then
-        makefolder(folder)
-    end
-
-    local box = self:textbox({name = "Name", def = ""})
-    local list = self:list({name = "configs", values = {}})
-
-    local function refresh()
-        local files = listfiles(folder)
-        local names = {}
-        for _, file in ipairs(files) do
-            table.insert(names, file:match("[^/\\]+$"):gsub("%.json$", ""))
-        end
-        list:update(names)
-    end
-
-    self:button("Load", function()
-        local sel = list.value
-        if sel and isfile(folder.."/"..sel..".json") then
-            local data = readfile(folder.."/"..sel..".json")
-            self.window:LoadConfig(data)
-        end
-    end)
-
-    self:button("Save", function()
-        local name = box.value
-        if name ~= "" then
-            local data = self.window:SaveConfig()
-            writefile(folder.."/"..name..".json", data)
-            refresh()
-        end
-    end)
-
-	local HttpService = game:GetService("HttpService")
-
-function Window:SaveConfig()
-    local data = {}
-
-    -- collect all elements in this window
-    for _, page in pairs(self.pages or {}) do
-        for _, section in pairs(page.sections or {}) do
-            for _, element in pairs(section.elements or {}) do
-                if element.flag then
-                    data[element.flag] = element.value
-                end
-            end
-        end
-    end
-
-    return HttpService:JSONEncode(data)
-end
-
-function Window:LoadConfig(raw)
-    local ok, data = pcall(function()
-        return HttpService:JSONDecode(raw)
-    end)
-    if not ok or type(data) ~= "table" then
-        return
-    end
-
-    -- apply config values back into elements
-    for _, page in pairs(self.pages or {}) do
-        for _, section in pairs(page.sections or {}) do
-            for _, element in pairs(section.elements or {}) do
-                if element.flag and data[element.flag] ~= nil then
-                    element:set(data[element.flag])
-                end
-            end
-        end
-    end
-end
-
-
-    self:button("Delete", function()
-        local sel = list.value
-        if sel and isfile(folder.."/"..sel..".json") then
-            delfile(folder.."/"..sel..".json")
-            refresh()
-        end
-    end)
-
-    self:button("Create", function()
-        local name = box.value
-        if name ~= "" then
-            writefile(folder.."/"..name..".json", "{}")
-            refresh()
-        end
-    end)
-
-    refresh()
-    return {refresh = refresh}
-end
-
+function sections:configloader(props)
+	-- // properties
+	local folder = props.folder or props.Folder
+	-- // variables
+	local configloader = {}
+	-- // main
+	local clholder = utility.new(
+		"Frame",
+		{
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1,0,0,222),
+			Parent = self.content
+		}
+	)
 	--
 	local outline = utility.new(
 		"Frame",
